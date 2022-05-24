@@ -22,25 +22,25 @@ fetch(url)
   });
 
 function displayProduct(products) {
-let img = document.createElement("img");
-img.src = products.imageUrl;
-img.setAttribute("alt", `${products.altTxt}`);
-document.querySelector(".item__img").appendChild(img);
-let title = document.getElementById("title");
-title.textContent = `${products.name}`;
-let price = document.getElementById("price");
-price.textContent = `${products.price}`;
-let description = document.getElementById("description");
-description.textContent = `${products.description}`;
-// boucle pour ajout des couleurs dans la liste deroulant
-for (let i = 0; i < products.colors.length; i++) {
-    let color = products.colors[i];
-    let option = document.createElement("option");
-    option.value = "valeur";
-    option.textContent = `${color}`;
-    document.querySelector("#colors").appendChild(option);
-  }
-  const commande = document.getElementById("addToCart");
+    let img = document.createElement("img");
+    img.src = products.imageUrl;
+    img.setAttribute("alt", `${products.altTxt}`);
+    document.querySelector(".item__img").appendChild(img);
+    let title = document.getElementById("title");
+    title.textContent = `${products.name}`;
+    let price = document.getElementById("price");
+    price.textContent = `${products.price}`;
+    let description = document.getElementById("description");
+    description.textContent = `${products.description}`;
+    // boucle pour ajout des couleurs dans la liste deroulant
+    for (let i = 0; i < products.colors.length; i++) {
+        let color = products.colors[i];
+        let option = document.createElement("option");
+        option.value = "valeur";
+        option.textContent = `${color}`;
+        document.querySelector("#colors").appendChild(option);
+    }
+    const commande = document.getElementById("addToCart");
     commande.addEventListener('click', event => {
         let liste, value, couleur, quantite;
         liste = document.getElementById("colors");
@@ -76,7 +76,7 @@ function getPanier() {
     }
 }
 
-// fonction qui ajoute les elements au tableau
+// fonction qui ajoute les elements au panier
 function addPanier(produit) {
     // recupere le tableau dans une variable
     let panier = getPanier();
@@ -85,33 +85,18 @@ function addPanier(produit) {
         panier.push(produit);
     } else {
         // sinon ajout nombre ou ajout produit
-        // boucle pour voir si id et couleur produit existe Vrai ajoute nombre, sauvegarde et fin function
+        // ajoute nombre boucle pour voir si id et couleur produit existe : Vrai , sauvegarde et fin function
+        // QUESTION for of ?
         for (i = 0; i < panier.length; i++){
             if (panier[i]._id == produit._id && panier[i].colors == produit.colors) {
                 panier[i].nombre = Number(panier[i].nombre)+ Number(produit.nombre); 
                 savePanier(panier);
                 return;    
-            }
-           
+            }  
         }
         // ajout produit
         panier.push(produit);
         console.log(panier);
-        // let foundP = panier.find((p => p._id == produit._id) && (p => p.colors == produit.colors));
-        // console.log(foundP);
-        // if (foundP != undefined) {
-        //     let nombreP = foundP.nombre == produit.nombre;    
-        //     console.log(nombreP);
-        //     if (nombreP) { 
-                
-        //     } else {      
-        //         // const j = 3;
-        //         // produit[j] = p.nombre;       
-        //     } 
-        // } else {
-        //     // ajoute les elements dans le tableau
-        //     panier.push(produit); 
-        // }  
          
     }            
     // enregistre le panier

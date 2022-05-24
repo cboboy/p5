@@ -44,4 +44,3 @@ function displayProduct(products) {
     document.querySelector("#items").appendChild(a);
   }
 }
-
