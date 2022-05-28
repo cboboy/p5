@@ -1,7 +1,4 @@
-// recuperation de l'id du produit et enleve les 4 premieres lettres
-// const id = window.location.search.slice(4);
-
-// methode complique, plus sure ?????
+// recuperation de l'id du produit 
 const url2 = window.location.search;
 const urlId = new URLSearchParams(url2);
 const id = urlId.get("id");
@@ -18,9 +15,10 @@ fetch(url)
     displayProduct(data);
   })
   .catch((error) => {
-    console.log("une erreur !!!");
+    alert("Une erreur est survenue, " + error);
   });
 
+// *******debut FONCTION mise en forme HTML
 function displayProduct(products) {
     let img = document.createElement("img");
     img.src = products.imageUrl;
@@ -40,28 +38,66 @@ function displayProduct(products) {
         option.textContent = `${color}`;
         document.querySelector("#colors").appendChild(option);
     }
+
+    // si produit deja dans le panier, affiche le nombre d'article
+    let eventColor = document.querySelector("#colors");
+    eventColor.addEventListener("change", () => {
+        let indexColor = eventColor.selectedIndex;
+        let color = document.getElementsByTagName("option")[indexColor].text;
+        let panier = getPanier();
+        for (let i = 0; i < panier.length; i++) {
+            if (panier[i]._id == id  && panier[i].colors == color) {
+                let qte = panier[i].nombre;   
+                document.getElementById("quantity").value = qte;
+                break;
+            } else {
+                document.getElementById("quantity").value = '0';
+            }
+        }
+    }, false);
+
+    // addEventListener sur le bouton "Ajouter au panier"
     const commande = document.getElementById("addToCart");
     commande.addEventListener('click', event => {
+        let borderS = document.querySelector(".item__content__addButton button");
         let liste, value, couleur, quantite;
         liste = document.getElementById("colors");
         value = liste.options[liste.selectedIndex].value;
         couleur = liste.options[liste.selectedIndex].text;
         quantite = document.getElementById("quantity").value;
-        if ((value != "valeur") || (quantite == 0)) {
-            window.alert("choisir une couleur et/ou le nombre d'articles");
+        if ((value != "valeur") || (quantite <= 0 ) || quantite >= 101) {
+            // window.alert("choisir une couleur et/ou le nombre d'article(s)");
+            // hover rouge si ko
+            borderS = borderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
         } else {
+            // hover vert si ok
+            borderS = borderS.style["boxShadow"] = "rgba(2, 204, 19, 0.9) 0 0 40px 20px";
             let ajoutPanier = {_id : products._id, colors : couleur, nombre : quantite};
             addPanier(ajoutPanier)
         }
     });
+    // hover bleu sur bp
+    commande.addEventListener('mouseenter' , mouseenter => {
+        let borderNone = document.querySelector(".item__content__addButton button");
+        borderNone = borderNone.style["boxShadow"] = "rgba(42, 18, 206, 0.9) 0 0 22px 6px";
+    });
+    // hover sur bp
+    commande.addEventListener('mouseleave' , mouseleave => {
+        let borderNone = document.querySelector(".item__content__addButton button");
+        borderNone = borderNone.style["boxShadow"] = "initial";
+    });
 }
-// fonction qui enregistre le panier dans le localStorage
+// *******fin FONCTION mise en forme HTML
+
+// *******debut FONCTION qui enregistre le panier dans le localStorage
 function savePanier(panier) {
+    console.log("savepanier", panier);
     // modifie tableau au format JSON( chaine de caractere )
     localStorage.setItem("panier", JSON.stringify(panier));
 }
+// *******fin FONCTION qui enregistre le panier dans le localStorage
 
-// fonction qui recupere les elements du tableau
+// *******debut FONCTION qui recupere les elements du tableau
 function getPanier() {
     // enregistre dans une variable le panier
     let panier = localStorage.getItem("panier");
@@ -71,12 +107,13 @@ function getPanier() {
         // on retourne un tableau vide,
         return [];
     } else {
-        // on retourne les elements au format JSON
+        // sinon on ajoute les elements au format JSON
         return JSON.parse(panier);
     }
 }
+// *******fin FONCTION qui recupere les elements du tableau
 
-// fonction qui ajoute les elements au panier
+// *******debut FONCTION qui ajoute les elements au panier
 function addPanier(produit) {
     // recupere le tableau dans une variable
     let panier = getPanier();
@@ -89,21 +126,34 @@ function addPanier(produit) {
         // QUESTION for of ?
         for (i = 0; i < panier.length; i++){
             if (panier[i]._id == produit._id && panier[i].colors == produit.colors) {
-                panier[i].nombre = Number(panier[i].nombre)+ Number(produit.nombre); 
+                panier[i].nombre =  Number(produit.nombre); 
+                console.log("ajout nombre", panier);
                 savePanier(panier);
-                return;    
+                return;
             }  
         }
         // ajout produit
-        panier.push(produit);
-        console.log(panier);
-         
+        console.log("ajout produit",panier);
+        panier.push(produit);         
     }            
     // enregistre le panier
-    savePanier(panier);    
-}                             
-                
-            
+    triTableau(panier);    
+}   
+// *******fin FONCTION qui ajoute les elements au panier                          
+
+// *******debut FONCTION tri tableau
+function triTableau(panier) {
+    console.log("panier f tri", panier);
+    panier.sort(function(a, b){
+        a = a._id;
+        b = b._id;
+        if (a < b) { return -1; }
+        if (a > b) { return 1; }
+        if (a === b) { return a.colors - b.colors; }
+    })
+    savePanier(panier);
+}
+// *******fin FONCTION tri tableau
         
      
     

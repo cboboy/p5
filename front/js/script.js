@@ -7,7 +7,9 @@ fetch(url)
     }
   })
   .then((data) => displayProduct(data))
-  .catch((error) => console.log("Erreur : " + error));
+  .catch((error) => {
+    alert("Une erreur est survenue, " + error);
+  });
 
 function displayProduct(products) {
   for (let i = 0; i < products.length; i++) {
