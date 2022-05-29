@@ -149,9 +149,7 @@ function displayProduct(products){
             panier = panier.filter(function () { return true });
             savePanier(panier);
             // recharge la page pour mise a jour
-            let cart__items = document.getElementById('cart__items').innerHTML;
-            document.getElementById("cart__items").innerHTML = cart__items;
-            // document.getElementById("cart__items").innerHTML = document.getElementById("cart__items").innerHTML ;
+            location.reload();
         }, false);
     }
     let totalQuantity = 0;
@@ -194,18 +192,49 @@ function setTim(arg){
     arg.style.backgroundColor = "";
     };
 // --------------------------------------- formulaire -----------------------
-
+ if (localStorage["contact"]) {
+     console.log("contact existe")
+ } else {
+    console.log("contact n'existe pas")
+    // creation de l'objet formulaire
+    const contact = {
+        firstName: document.querySelector("#firstName").value,
+        lastName: document.querySelector("#lastName").value,
+        address: document.querySelector("#address").value,
+        city: document.querySelector("#city").value,
+        email: document.querySelector("#email").value
+    };
+    localStorage.setItem("contact", JSON.stringify(contact));
+ }
 // fonction qui enregistre le formulaire de contact dans le localStorage
 function saveContact(contact) {
 // modifie tableau au format JSON( chaine de caractere )
 localStorage.setItem("contact", JSON.stringify(contact));
 };
 
+// *******debut FONCTION qui recupere les elements du tableau
+function getContact() {
+    // enregistre dans une variable le panier
+    let contact = JSON.parse(localStorage.getItem("contact"));
+};
+// *******fin FONCTION qui recupere les elements du tableau
+
+// // creation de l'objet formulaire
+// const contact = {
+//     firstName: document.querySelector("#firstName").value,
+//     lastName: document.querySelector("#lastName").value,
+//     address: document.querySelector("#address").value,
+//     city: document.querySelector("#city").value,
+//     email: document.querySelector("#email").value
+// };
+// saveContact(contact)
 let firstName = document.querySelector('#firstName');
 let lastName = document.querySelector('#lastName');
 let address = document.querySelector('#address');
 let city = document.querySelector('#city');
 let email = document.querySelector('#email');
+let contact = JSON.parse(localStorage.getItem("contact"));
+console.log(contact);
 // event sur changement dans l'input firstName
 firstName.addEventListener("change", () => {
     inputFirstName();
@@ -216,6 +245,9 @@ function inputFirstName() {
         // si ok 
         document.querySelector("#firstNameErrorMsg").innerHTML = "";
         firstName.style.backgroundColor = "#a0f09e";
+        let contact = JSON.parse(localStorage.getItem("contact"));
+        contact["firstName"] = (firstName.value);
+        saveContact(contact);
         return true;
     } else {
         // si ko insere texte erreur 
@@ -239,6 +271,9 @@ function inputLastName() {
         // si ok 
         document.querySelector("#lastNameErrorMsg").innerHTML = "";
         lastName.style.backgroundColor = "#a0f09e";
+        let contact = JSON.parse(localStorage.getItem("contact"));
+        contact["lastName"] = (lastName.value);
+        saveContact(contact);
         return true;
     } else {
         // si ko insere texte erreur 
@@ -262,6 +297,9 @@ function inputAddress() {
         // si ok 
         document.querySelector("#addressErrorMsg").innerHTML = "";
         address.style.backgroundColor = "#a0f09e";
+        let contact = JSON.parse(localStorage.getItem("contact"));
+        contact["address"] = (address.value);
+        saveContact(contact);
         return true;
     } else {
         // si ko insere texte erreur 
@@ -285,6 +323,9 @@ function inputCity() {
         // si ok 
         document.querySelector("#cityErrorMsg").innerHTML = "";
         city.style.backgroundColor = "#a0f09e";
+        let contact = JSON.parse(localStorage.getItem("contact"));
+        contact["city"] = (city.value);
+        saveContact(contact);
         return true;
     } else {
         // si ko insere texte erreur 
@@ -308,6 +349,9 @@ function inputEmail() {
         // si ok 
         document.querySelector("#emailErrorMsg").innerHTML = "";
         email.style.backgroundColor = "#a0f09e";
+        let contact = JSON.parse(localStorage.getItem("contact"));
+        contact["email"] = (email.value);
+        saveContact(contact);
         return true;
     } else {
         // si ko insere texte erreur 
@@ -324,7 +368,7 @@ function inputEmail() {
 // validation champs de formulaire
 
 // declare une variable avec toute les balises input avec l'attribut required
-let champs = document.querySelectorAll('input[required]');
+// let champs = document.querySelectorAll('input[required]');
 
 // addEventListener sur bouton commander
 const order = document.querySelector('#order');
@@ -332,18 +376,18 @@ order.addEventListener('click', (e) => {
     let orderS = document.querySelector('.cart__order__form__submit input');
     // desactive le comportement du bouton
     e.preventDefault(); 
-
-    // creation de l'objet formulaire
-    const contact = {
-        firstName: document.querySelector("#firstName").value,
-        lastName: document.querySelector("#lastName").value,
-        address: document.querySelector("#address").value,
-        city: document.querySelector("#city").value,
-        email: document.querySelector("#email").value
-    };
+    let contact = JSON.parse(localStorage.getItem("contact"));
+    console.log(contact);
+    // sauvegarde le formulaire
+    saveContact(contact);
 
     // *******debut FONCTION qui verifie si tout les champs du formulaire sont valides
     function valideChamp(){
+        inputFirstName();
+        inputLastName();
+        inputAddress();
+        inputCity();
+        inputEmail();
         if(inputFirstName() && inputLastName() && inputAddress() && inputCity() && inputEmail()){
             return true;
         } else {
@@ -351,12 +395,12 @@ order.addEventListener('click', (e) => {
         }
     };
     // *******fin FONCTION qui verifie si tout les champs du formulaire sont valides
-  
-    // FONCTION true
+    valideChamp()
+    // Verification avant envoie au back
     let panier = getPanier();
     if(valideChamp() && panier.length > 0){
-        // sauvegarde le formulaire
-        saveContact(contact);
+        // // sauvegarde le formulaire
+        // saveContact(contact);
         // cree le tableau products avec les id contenu dans le panier
         let productsData = JSON.parse(localStorage.getItem("panier"));
         let products = [];
@@ -370,7 +414,7 @@ order.addEventListener('click', (e) => {
         };
         console.log("productsData",productsData);
         console.log("panierData", panierData);
-        // postData(panierData);
+        postData(panierData);
     } else {
         // hover rouge si ko
         orderS = orderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
