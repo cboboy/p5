@@ -18,7 +18,10 @@ fetch(url)
     alert("Une erreur est survenue, " + error);
   });
 
-// *******debut FONCTION mise en forme HTML
+/**
+ * modification du Dom et integration du produit
+ * @param {*} products 
+ */
 function displayProduct(products) {
     let img = document.createElement("img");
     img.src = products.imageUrl;
@@ -87,17 +90,20 @@ function displayProduct(products) {
         borderNone = borderNone.style["boxShadow"] = "initial";
     });
 }
-// *******fin FONCTION mise en forme HTML
 
-// *******debut FONCTION qui enregistre le panier dans le localStorage
+/**
+ * sauvegarde du panier
+ * @param {*} panier 
+ */
 function savePanier(panier) {
-    console.log("savepanier", panier);
     // modifie tableau au format JSON( chaine de caractere )
     localStorage.setItem("panier", JSON.stringify(panier));
 }
-// *******fin FONCTION qui enregistre le panier dans le localStorage
 
-// *******debut FONCTION qui recupere les elements du tableau
+/**
+ * recuperation du panier
+ * @returns 
+ */
 function getPanier() {
     // enregistre dans une variable le panier
     let panier = localStorage.getItem("panier");
@@ -111,9 +117,27 @@ function getPanier() {
         return JSON.parse(panier);
     }
 }
-// *******fin FONCTION qui recupere les elements du tableau
 
-// *******debut FONCTION qui ajoute les elements au panier
+/**
+ * tri panier par _id
+ * @param {*} panier 
+ */
+ function triTableau(panier) {
+    panier.sort(function(a, b){
+        a = a._id;
+        b = b._id;
+        if (a < b) { return -1; }
+        if (a > b) { return 1; }
+        if (a === b) { return a.colors - b.colors; }
+    })
+    savePanier(panier);
+}
+
+/**
+ * ajout quantite ou produit
+ * @param {*} produit 
+ * @returns 
+ */
 function addPanier(produit) {
     // recupere le tableau dans une variable
     let panier = getPanier();
@@ -121,9 +145,7 @@ function addPanier(produit) {
     if (panier.length == 0) {
         panier.push(produit);
     } else {
-        // sinon ajout nombre ou ajout produit
-        // ajoute nombre boucle pour voir si id et couleur produit existe : Vrai , sauvegarde et fin function
-        // QUESTION for of ?
+        // si id et couleur produit existe, sauvegarde et fin function
         for (i = 0; i < panier.length; i++){
             if (panier[i]._id == produit._id && panier[i].colors == produit.colors) {
                 panier[i].nombre =  Number(produit.nombre); 
@@ -138,12 +160,13 @@ function addPanier(produit) {
     }            
     // enregistre le panier
     triTableau(panier);    
-}   
-// *******fin FONCTION qui ajoute les elements au panier                          
+}                      
 
-// *******debut FONCTION tri tableau
+/**
+ * tri panier par _id
+ * @param {*} panier 
+ */
 function triTableau(panier) {
-    console.log("panier f tri", panier);
     panier.sort(function(a, b){
         a = a._id;
         b = b._id;
@@ -153,7 +176,6 @@ function triTableau(panier) {
     })
     savePanier(panier);
 }
-// *******fin FONCTION tri tableau
         
      
     

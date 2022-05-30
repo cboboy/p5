@@ -9,8 +9,13 @@ fetch(url)
   .then((data) => displayProduct(data))
   .catch((error) => {
     alert("Une erreur est survenue, " + error);
-  });
+  }
+);
 
+/**
+ * modification du Dom et integration des produits
+ * @param {*} products 
+ */
 function displayProduct(products) {
   for (let i = 0; i < products.length; i++) {
     // let a = document.createElement("a");
