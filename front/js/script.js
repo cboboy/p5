@@ -8,7 +8,7 @@ fetch(url)
   })
   .then((data) => displayProduct(data))
   .catch((error) => {
-    alert("Une erreur est survenue, " + error);
+    alert(`Une erreur est survenue,  + ${error} \nServeur demarré ? - port 3000 ?`);
   }
 );
 

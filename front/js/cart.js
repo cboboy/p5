@@ -71,7 +71,7 @@ function displayProduct(products){
             div_cart__item__content.classList.add("cart__item__content");
             let div_cart__item__content__description = document.createElement("div");
             div_cart__item__content__description.classList.add("cart__item__content__description");
-            let h2 = document.createElement("h3");
+            let h2 = document.createElement("h2");
             h2.textContent = `${products[indexP].name}`;
             let p1 = document.createElement("p");
             p1.textContent = `${products[indexP].colors[indexC]}`;
@@ -155,12 +155,14 @@ function displayProduct(products){
         let el = document.querySelectorAll(".cart__item__content__settings__delete p");
         for (let i = 0; i < el.length; i++) {
             el[i].addEventListener("click", () => {
-                delete (panier[i]);
+                if (window.confirm("Supprimer ce produit ?")) {
+                  delete (panier[i]);
                 // enleve l'index si = Null
                 panier = panier.filter(function () { return true });
                 savePanier(panier);
                 // recharge la page pour mise a jour
-                location.reload();
+                location.reload();  
+                }
             }, false);
         };
 
@@ -193,7 +195,6 @@ function totalPrixProduits() {
         value_totalPrix = value_totalPrix + panier[i].nombre * Number(carts[i].textContent.substring(0, carts[i].textContent.length - 2));
     }
 };
-// *******fin FONCTION total prix produits
 
 // *******debut FONCTION total quantite produits
 function totalProduits() {
@@ -202,7 +203,6 @@ function totalProduits() {
         value_totalQuantity += Number(item.value);   
     });
 };
-// *******fin FONCTION total produits
 
 // ******* FONCTION pour virer le background apres un  setTimeout
 function setTim(arg){
@@ -235,7 +235,6 @@ function getContact() {
     // enregistre dans une variable le panier
     let contact = JSON.parse(localStorage.getItem("contact"));
 };
-// *******fin FONCTION qui recupere les elements du tableau
 
 // saveContact(contact)
 let firstName = document.querySelector('#firstName');
@@ -249,6 +248,7 @@ console.log(contact);
 firstName.addEventListener("change", () => {
     inputFirstName();
 });
+
 // *******debut FONCTION regEx firstName
 function inputFirstName() {
     if (/^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]{2,}$/.test(firstName.value)) {
@@ -269,7 +269,6 @@ function inputFirstName() {
         return false;
     }
 };
-// *******fin FONCTION regEx firstName
 
 // event sur changement dans l'input lastName
 lastName.addEventListener("change", () => {
@@ -295,7 +294,6 @@ function inputLastName() {
         return false;
     }
 };
-// *******fin FONCTION regEx lastName
 
 // event sur changement dans l'input adress
 address.addEventListener("change", () => {
@@ -321,7 +319,6 @@ function inputAddress() {
         return false;
     }
 };
-// *******fin FONCTION regEx adress
 
 // event sur changement dans l'input city
 city.addEventListener("change", () => {
@@ -347,7 +344,6 @@ function inputCity() {
         return false;
     }
 };
-// *******fin FONCTION regEx city
 
 // event sur changement dans l'input email
 email.addEventListener("change", () => {
@@ -373,7 +369,6 @@ function inputEmail() {
         return false;
     }
 };
-// *******fin FONCTION regEx email
 
 // *******debut FONCTION qui verifie si tout les champs du formulaire sont valides
 function valideChamp(){
@@ -388,7 +383,6 @@ function valideChamp(){
         return false;
     }
 };
-// *******fin FONCTION qui verifie si tout les champs du formulaire sont valides
 
 if(valideChamp() && panier.length > 0){
     console.log("if")
@@ -474,5 +468,7 @@ function postData(panierData){
             alert("Une erreur est survenue, " + err);
         }
     })
+    .catch((error) => {
+        alert("Une erreur est survenue, " + error);
+      });
 };
-// *******fin POST envoie des données

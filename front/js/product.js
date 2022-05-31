@@ -50,7 +50,7 @@ function displayProduct(products) {
         let panier = getPanier();
         for (let i = 0; i < panier.length; i++) {
             if (panier[i]._id == id  && panier[i].colors == color) {
-                let qte = panier[i].nombre;   
+                qte = panier[i].nombre;   
                 document.getElementById("quantity").value = qte;
                 break;
             } else {
@@ -69,9 +69,12 @@ function displayProduct(products) {
         couleur = liste.options[liste.selectedIndex].text;
         quantite = document.getElementById("quantity").value;
         if ((value != "valeur") || (quantite <= 0 ) || quantite >= 101) {
-            // window.alert("choisir une couleur et/ou le nombre d'article(s)");
+            let panier = getPanier();
             // hover rouge si ko
             borderS = borderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
+            setTimeout(() => {
+                document.getElementById("quantity").value = qte;
+            }, 300);
         } else {
             // hover vert si ok
             borderS = borderS.style["boxShadow"] = "rgba(2, 204, 19, 0.9) 0 0 40px 20px";
