@@ -5,7 +5,6 @@ const id = urlId.get("orderId");
 
 orderId = document.getElementById("orderId");
 orderId.textContent = `${id}`;
-console.log(id);
 if (id !== 'undefined') {
     localStorage.clear();
 };

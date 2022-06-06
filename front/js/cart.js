@@ -1,55 +1,33 @@
 const url = "http://localhost:3000/api/products/";
 
 fetch(url)
-  .then((resultat) => {
-    if (resultat.ok) {
-      return resultat.json();
-    }
-  })
-  .then((data) => displayProduct(data))
-  .catch((error) => {
-    alert("Une erreur est survenue, " + error);
-  });
-
-// *******debut FONCTION qui recupere les elements du tableau
-function getPanier() {
-    // enregistre dans une variable le panier
-    let panier = localStorage.getItem("panier");
-    // si il n'existe pas,  on retourne un tableau vide,
-    if(panier == null) {
-        return [];
-    } else {
-        // on retourne les elements parse
-        return JSON.parse(panier);
-    }
+.then((resultat) => {
+if (resultat.ok) {
+    return resultat.json();
 }
-// *******finFONCTION qui recupere les elements du tableau
+})
+.then((data) => displayProduct(data))
+.catch((error) => {
+alert("Une erreur est survenue, " + error);
+});
 
-// *******debut FONCTION enregistre le panier dans le localStorage
-function savePanier(panier) {
-    // modifie tableau au format JSON( chaine de caractere )
-    localStorage.setItem("panier", JSON.stringify(panier));
-}
-// *******fin FONCTION enregistre le panier dans le localStorage
-
-// *******debut FONCTION mise en place html
+/**
+ * debut FONCTION mise en place html
+ * @param {*} products 
+ */
 function displayProduct(products){
     let panier = getPanier();
-    // si panier null ou vide, message + formulaire virer + btn retour accueil
+    let order = document.querySelector('#order');
+    // si panier null ou vide, texte H1 modifier + formulaire enlever + btn retour accueil
     if(localStorage.getItem("panier") == null  || panier.length <= 0){
         let h1 = document.getElementsByTagName("h1");
         h1[0].innerHTML += h1[0].innerHTML = " est vide";
-        document.getElementById('totalQuantity').innerHTML = "0";
-        document.getElementById('totalPrice').innerHTML = "0";
         let champs = document.querySelectorAll('.cart__order__form__question');
         champs.forEach((champ) => {
             champ.remove();
         });
         document.querySelector('.cart__price').remove();
         order.value = "Accueil";
-        order.addEventListener('click', () => {
-            window.location.href = `http://127.0.0.1:5500/front/html/index.html`;
-        });
     } else {
         // pour chaque index du panier dans le localstorage
         for (i = 0; i < panier.length; i++) {
@@ -137,7 +115,8 @@ function displayProduct(products){
         for (let i = 0; i < qte.length; i++) {
             qte[i].addEventListener("change", () => {
                 let valeur = qte[i].value;
-                if(valeur >= 1 && valeur <= 100) {
+                // if(valeur >= 1 && valeur <= 100) {
+                if(valeur >= 1) {
                     panier[i].nombre = qte[i].value;
                     qte[i].style.backgroundColor = "#a8fbbd";
                     savePanier(panier);
@@ -165,13 +144,67 @@ function displayProduct(products){
                 }
             }, false);
         };
-
-        
-       
         totalArticle();
     };
+    // addEventListener sur bouton commander
+    order.addEventListener('click', (e) => {
+        // desactive le comportement du bouton
+        e.preventDefault(); 
+        if(order.value == "Accueil") {
+            window.location.href = `./index.html`;  
+        } else {
+            let contact = JSON.parse(localStorage.getItem("contact"));
+            // sauvegarde le formulaire
+            saveContact(contact);
+            // Verification avant envoie au back
+            let panier = getPanier();
+            if(valideChamp() && panier.length > 0){
+                // // sauvegarde le formulaire
+                // saveContact(contact);
+                // cree le tableau products avec les id contenu dans le panier
+                let productsData = JSON.parse(localStorage.getItem("panier"));
+                let products = [];
+                for(product of productsData) {
+                    products.push(product._id);
+                };
+                // cree la variable avec les 2 tableaux a envoyer
+                const panierData = {
+                    products,
+                    contact,
+                };
+                postData(panierData);
+            } else {
+                // hover rouge si ko
+                redShadow()
+            } 
+        };
+    }, false);     
 };
-// *******fin FONCTION mise en place html
+
+/**
+ * debut FONCTION qui recupere les elements du tableau
+ * @returns 
+ */
+function getPanier() {
+    // enregistre dans une variable le panier
+    let panier = localStorage.getItem("panier");
+    // si il n'existe pas,  on retourne un tableau vide,
+    if(panier == null) {
+        return [];
+    } else {
+        // on retourne les elements parse
+        return JSON.parse(panier);
+    }
+}
+
+/**
+ * debut FONCTION enregistre le panier dans le localStorage
+ * @param {*} panier 
+ */
+function savePanier(panier) {
+    // modifie tableau au format JSON( chaine de caractere )
+    localStorage.setItem("panier", JSON.stringify(panier));
+}
 
 /**
  * debut FONCTION total prix produits
@@ -187,7 +220,9 @@ function totalArticle() {
     document.getElementById('totalPrice').textContent = `${value_totalPrix}`;
 }
 
-// *******debut FONCTION total prix produits
+/**
+ * debut FONCTION total prix produits
+ */
 function totalPrixProduits() {
     let panier = getPanier();
     let carts = document.querySelectorAll(".cart__item__content__description > p:last-child");
@@ -196,7 +231,9 @@ function totalPrixProduits() {
     }
 };
 
-// *******debut FONCTION total quantite produits
+/**
+ * debut FONCTION total quantite produits
+ */
 function totalProduits() {
     let carts = document.querySelectorAll(".itemQuantity");
     carts.forEach(item => {
@@ -204,52 +241,55 @@ function totalProduits() {
     });
 };
 
-// ******* FONCTION pour virer le background apres un  setTimeout
+/**
+ * FONCTION pour virer le background apres un  setTimeout
+ * @param {*} arg 
+ */
 function setTim(arg){
     arg.style.backgroundColor = "";
     };
 
 // --------------------------------------- formulaire -----------------------
+// recuperer le contenu contact dans le localstorage ou creer le tableau
  if (localStorage["contact"]) {
-     console.log("contact existe")
+    const contactLS = localStorage.getItem("contact");
+    const contactLSParse = JSON.parse(contactLS);
+    // insere les valeurs dans les champs
+    Object.keys(contactLSParse).forEach(item => {
+        if(contactLSParse[item].constructor === String) {
+            document.querySelector(`#${item}`).value = contactLSParse[item];
+        }
+    });
  } else {
-    console.log("contact n'existe pas")
     // creation de l'objet formulaire
     const contact = {
-        firstName: document.querySelector("#firstName").value,
-        lastName: document.querySelector("#lastName").value,
-        address: document.querySelector("#address").value,
-        city: document.querySelector("#city").value,
-        email: document.querySelector("#email").value
+        firstName: document.querySelector("#firstName"),
+        lastName: document.querySelector("#lastName"),
+        address: document.querySelector("#address"),
+        city: document.querySelector("#city"),
+        email: document.querySelector("#email")
     };
     localStorage.setItem("contact", JSON.stringify(contact));
  }
-// fonction qui enregistre le formulaire de contact dans le localStorage
+
+/**
+ * fonction qui enregistre le formulaire de contact dans le localStorage
+ * @param {*} contact 
+ */
 function saveContact(contact) {
 // modifie tableau au format JSON( chaine de caractere )
 localStorage.setItem("contact", JSON.stringify(contact));
 };
 
-// *******debut FONCTION qui recupere les elements du tableau
-function getContact() {
-    // enregistre dans une variable le panier
-    let contact = JSON.parse(localStorage.getItem("contact"));
-};
-
-// saveContact(contact)
-let firstName = document.querySelector('#firstName');
-let lastName = document.querySelector('#lastName');
-let address = document.querySelector('#address');
-let city = document.querySelector('#city');
-let email = document.querySelector('#email');
-let contact = JSON.parse(localStorage.getItem("contact"));
-console.log(contact);
 // event sur changement dans l'input firstName
 firstName.addEventListener("change", () => {
     inputFirstName();
 });
 
-// *******debut FONCTION regEx firstName
+/**
+ * debut FONCTION regEx firstName
+ * @returns 
+ */
 function inputFirstName() {
     if (/^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]{2,}$/.test(firstName.value)) {
         // si ok 
@@ -274,7 +314,11 @@ function inputFirstName() {
 lastName.addEventListener("change", () => {
     inputLastName();
 });
-// *******debut FONCTION regEx lastName
+
+/**
+ * debut FONCTION regEx lastName
+ * @returns 
+ */
 function inputLastName() {
     if (/^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]{2,}$/.test(lastName.value)) {
         // si ok 
@@ -299,7 +343,11 @@ function inputLastName() {
 address.addEventListener("change", () => {
     inputAddress();
 });
-// *******debut FONCTION regEx address
+
+/**
+ * debut FONCTION regEx address
+ * @returns 
+ */
 function inputAddress() {
     if (/^[a-zA-Z0-9\s,.'-]{3,}$/.test(address.value)) {
         // si ok 
@@ -324,7 +372,11 @@ function inputAddress() {
 city.addEventListener("change", () => {
     inputCity();
 });
-// *******debut FONCTION regEx city
+
+/**
+ * debut FONCTION regEx city
+ * @returns 
+ */
 function inputCity() {
     if (/^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]{1,}$/.test(city.value)) {
         // si ok 
@@ -349,7 +401,11 @@ function inputCity() {
 email.addEventListener("change", () => {
     inputEmail();
 });
-// *******debut FONCTION regEx email
+
+/**
+ * debut FONCTION regEx email
+ * @returns 
+ */
 function inputEmail() {
     if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email.value)) {
         // si ok 
@@ -370,7 +426,11 @@ function inputEmail() {
     }
 };
 
-// *******debut FONCTION qui verifie si tout les champs du formulaire sont valides
+
+/**
+ * debut FONCTION qui verifie si tout les champs du formulaire sont valides
+ * @returns 
+ */
 function valideChamp(){
     inputFirstName();
     inputLastName();
@@ -384,73 +444,11 @@ function valideChamp(){
     }
 };
 
-if(valideChamp() && panier.length > 0){
-    console.log("if")
-} else {
-    console.log("else")
-};
 
-// addEventListener sur bouton commander
-const order = document.querySelector('#order');
-order.addEventListener('click', (e) => {
-    let orderS = document.querySelector('.cart__order__form__submit input');
-    // desactive le comportement du bouton
-    e.preventDefault(); 
-    let contact = JSON.parse(localStorage.getItem("contact"));
-    console.log(contact);
-    // sauvegarde le formulaire
-    saveContact(contact);
-
-
-    valideChamp()
-    // Verification avant envoie au back
-    let panier = getPanier();
-    if(valideChamp() && panier.length > 0){
-        // // sauvegarde le formulaire
-        // saveContact(contact);
-        // cree le tableau products avec les id contenu dans le panier
-        let productsData = JSON.parse(localStorage.getItem("panier"));
-        let products = [];
-        for(product of productsData) {
-            products.push(product._id);
-        };
-        // cree la variable avec les 2 tableaux a envoyer
-        const panierData = {
-            products,
-            contact,
-        };
-        console.log("productsData",productsData);
-        console.log("panierData", panierData);
-        postData(panierData);
-    } else {
-        // hover rouge si ko
-        orderS = orderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
-    }
-}, false);
-
-// hover bleu sur bp
-order.addEventListener('mouseenter' , mouseenter => {
-    let borderNone = document.querySelector('.cart__order__form__submit input');
-    borderNone = borderNone.style["boxShadow"] = "rgba(42, 18, 206, 0.9) 0 0 22px 6px";
-});
-// hover sur bp
-order.addEventListener('mouseleave' , mouseleave => {
-    let borderNone = document.querySelector(".cart__order__form__submit input");
-    borderNone = borderNone.style["boxShadow"] = "initial";
-});
-
-// recuperer le contenu contact dans le localstorage
-const contactLS = localStorage.getItem("contact");
-const contactLSParse = JSON.parse(contactLS);
-// insere les valeurs dans les champs
-document.querySelector("#firstName").value = contactLSParse.firstName;
-document.querySelector("#lastName").value = contactLSParse.lastName;
-document.querySelector("#address").value = contactLSParse.address;
-document.querySelector("#city").value = contactLSParse.city;
-document.querySelector("#email").value = contactLSParse.email;
-
-
-// *******debut POST envoie des données
+/**
+ * debut POST envoie des données
+ * @param {*} panierData 
+ */
 function postData(panierData){
     const appel = fetch(`${url}order`, {
         method : "POST",
@@ -472,3 +470,36 @@ function postData(panierData){
         alert("Une erreur est survenue, " + error);
       });
 };
+
+// hover shadow bleu sur bp
+order.addEventListener('mouseenter' , mouseenter => {
+    blueShadow()
+});
+// no hover shadow sur bp
+order.addEventListener('mouseleave' , mouseleave => {
+    noShadow()
+});
+
+/**
+ * // no hover shadow
+ */
+ function noShadow() {
+    let borderS = document.querySelector(".cart__order__form__submit input");
+    borderS = borderS.style["boxShadow"] = "initial";
+}
+
+/**
+ * // hover shadow bleu
+ */
+ function blueShadow() {
+    let borderS = document.querySelector('.cart__order__form__submit input');
+    borderS = borderS.style["boxShadow"] = "rgba(42, 18, 206, 0.9) 0 0 22px 6px";
+}
+
+/**
+ * // hover shadow rouge
+ */
+function redShadow() {
+    let borderS = document.querySelector('.cart__order__form__submit input');
+    borderS = borderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
+}

@@ -6,17 +6,17 @@ const id = urlId.get("id");
 const url = `http://localhost:3000/api/products/${id}`;
 
 fetch(url)
-  .then((resultat) => {
-    if (resultat.ok) {
-      return resultat.json();
-    }
-  })
-  .then((data) => {
-    displayProduct(data);
-  })
-  .catch((error) => {
-    alert("Une erreur est survenue, " + error);
-  });
+.then((resultat) => {
+if (resultat.ok) {
+    return resultat.json();
+}
+})
+.then((data) => {
+displayProduct(data);
+})
+.catch((error) => {
+alert("Une erreur est survenue, " + error);
+});
 
 /**
  * modification du Dom et integration du produit
@@ -41,58 +41,46 @@ function displayProduct(products) {
         option.textContent = `${color}`;
         document.querySelector("#colors").appendChild(option);
     }
-
-    // si produit deja dans le panier, affiche le nombre d'article
-    let eventColor = document.querySelector("#colors");
-    eventColor.addEventListener("change", () => {
-        let indexColor = eventColor.selectedIndex;
-        let color = document.getElementsByTagName("option")[indexColor].text;
-        let panier = getPanier();
-        for (let i = 0; i < panier.length; i++) {
-            if (panier[i]._id == id  && panier[i].colors == color) {
-                qte = panier[i].nombre;   
-                document.getElementById("quantity").value = qte;
-                break;
-            } else {
-                document.getElementById("quantity").value = '0';
-            }
-        }
-    }, false);
-
-    // addEventListener sur le bouton "Ajouter au panier"
-    const commande = document.getElementById("addToCart");
-    commande.addEventListener('click', event => {
-        let borderS = document.querySelector(".item__content__addButton button");
-        let liste, value, couleur, quantite;
-        liste = document.getElementById("colors");
-        value = liste.options[liste.selectedIndex].value;
-        couleur = liste.options[liste.selectedIndex].text;
-        quantite = document.getElementById("quantity").value;
-        if ((value != "valeur") || (quantite <= 0 ) || quantite >= 101) {
-            let panier = getPanier();
-            // hover rouge si ko
-            borderS = borderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
-            setTimeout(() => {
-                document.getElementById("quantity").value = qte;
-            }, 300);
-        } else {
-            // hover vert si ok
-            borderS = borderS.style["boxShadow"] = "rgba(2, 204, 19, 0.9) 0 0 40px 20px";
-            let ajoutPanier = {_id : products._id, colors : couleur, nombre : quantite};
-            addPanier(ajoutPanier)
-        }
-    });
-    // hover bleu sur bp
-    commande.addEventListener('mouseenter' , mouseenter => {
-        let borderNone = document.querySelector(".item__content__addButton button");
-        borderNone = borderNone.style["boxShadow"] = "rgba(42, 18, 206, 0.9) 0 0 22px 6px";
-    });
-    // hover sur bp
-    commande.addEventListener('mouseleave' , mouseleave => {
-        let borderNone = document.querySelector(".item__content__addButton button");
-        borderNone = borderNone.style["boxShadow"] = "initial";
-    });
 }
+
+// au choix de la couleur, mets la valeur par defaut a 1
+let eventColor = document.querySelector("#colors");
+eventColor.addEventListener("change", () => {
+    let liste = document.getElementById("colors");
+    let value = liste.options[liste.selectedIndex].value;
+    if (value != "valeur") {
+        document.getElementById("quantity").value = '0';
+    } else {
+        document.getElementById("quantity").value = '1';
+    }
+}, false);
+
+// -------------------------- addEventListener sur le bouton "Ajouter au panier"
+const commande = document.getElementById("addToCart");
+commande.addEventListener('click', event => {
+    let borderS = document.querySelector(".item__content__addButton button");
+    let liste, value, couleur, quantite;
+    liste = document.getElementById("colors");
+    value = liste.options[liste.selectedIndex].value;
+    couleur = liste.options[liste.selectedIndex].text;
+    quantite = document.getElementById("quantity").value;
+    // alerte si pas de couleur ( settimeout pour chrome)
+    if (value != "valeur") {
+        redShadow();
+        setTimeout(function(){window.alert("choisir une couleur")}, 50);
+    } else {
+        // alerte si mauvaise quantité
+        if (quantite <= 0 || quantite >= 101) {
+            redShadow();
+            setTimeout(function(){window.alert("le nombre d'articles doit être un chiffre entre 1 et 100")}, 50);
+        } else {
+                // ajout panier
+                greenShadow();
+                let ajoutPanier = {_id : id, colors : couleur, nombre : quantite};
+                addPanier(ajoutPanier);
+            }
+    }
+});
 
 /**
  * sauvegarde du panier
@@ -125,7 +113,7 @@ function getPanier() {
  * tri panier par _id
  * @param {*} panier 
  */
- function triTableau(panier) {
+function triTableau(panier) {
     panier.sort(function(a, b){
         a = a._id;
         b = b._id;
@@ -151,14 +139,21 @@ function addPanier(produit) {
         // si id et couleur produit existe, sauvegarde et fin function
         for (i = 0; i < panier.length; i++){
             if (panier[i]._id == produit._id && panier[i].colors == produit.colors) {
-                panier[i].nombre =  Number(produit.nombre); 
-                console.log("ajout nombre", panier);
-                savePanier(panier);
-                return;
+                let article = "article";
+                let sommeArticle = Number(panier[i].nombre)+ Number(produit.nombre);
+                if (panier[i].nombre > 1){
+                    article = "articles";
+                }
+                if(window.confirm(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors}, en rajouter ${produit.nombre} ?`)){
+                    panier[i].nombre = sommeArticle; 
+                    savePanier(panier);
+                    return;  
+                } else {
+                    return;
+                }
             }  
         }
         // ajout produit
-        console.log("ajout produit",panier);
         panier.push(produit);         
     }            
     // enregistre le panier
@@ -179,30 +174,45 @@ function triTableau(panier) {
     })
     savePanier(panier);
 }
-        
-     
-    
-   
-    
 
+// hover shadow bleu sur bp
+commande.addEventListener('mouseenter' , mouseenter => {
+    blueShadow()
+});
 
+// no hover shadow sur bp
+commande.addEventListener('mouseleave' , mouseleave => {
+    noShadow()
+});
 
+/**
+ * // no hover shadow
+ */
+ function noShadow() {
+    let borderS = document.querySelector(".item__content__addButton button");
+    borderS = borderS.style["boxShadow"] = "initial";
+}
 
+/**
+ * // hover shadow bleu
+ */
+ function blueShadow() {
+    let borderS = document.querySelector(".item__content__addButton button");
+    borderS = borderS.style["boxShadow"] = "rgba(42, 18, 206, 0.9) 0 0 22px 6px";
+}
 
+/**
+ * // hover shadow rouge
+ */
+function redShadow() {
+    let borderS = document.querySelector(".item__content__addButton button");
+    borderS = borderS.style["boxShadow"] = "rgba(244, 13, 13, 0.9) 0 0 40px 20px";
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * // hover shadow vert
+ */
+function greenShadow() {
+    let borderS = document.querySelector(".item__content__addButton button");
+    borderS = borderS.style["boxShadow"] = "rgba(2, 204, 19, 0.9) 0 0 40px 20px";
+}
