@@ -87,7 +87,7 @@ commande.addEventListener('click', event => {
  * @param {*} panier 
  */
 function savePanier(panier) {
-    // modifie tableau au format JSON( chaine de caractere )
+    // JSON.stringify().Cette opération transforme l’objet en une chaîne de caractères
     localStorage.setItem("panier", JSON.stringify(panier));
 }
 
@@ -104,24 +104,9 @@ function getPanier() {
         // on retourne un tableau vide,
         return [];
     } else {
-        // sinon on ajoute les elements au format JSON
+        // JSON.parse() reforme l’objet à partir de la chaîne linéarisée
         return JSON.parse(panier);
     }
-}
-
-/**
- * tri panier par _id
- * @param {*} panier 
- */
-function triTableau(panier) {
-    panier.sort(function(a, b){
-        a = a._id;
-        b = b._id;
-        if (a < b) { return -1; }
-        if (a > b) { return 1; }
-        if (a === b) { return a.colors - b.colors; }
-    })
-    savePanier(panier);
 }
 
 /**
@@ -141,16 +126,37 @@ function addPanier(produit) {
             if (panier[i]._id == produit._id && panier[i].colors == produit.colors) {
                 let article = "article";
                 let sommeArticle = Number(panier[i].nombre)+ Number(produit.nombre);
-                if (panier[i].nombre > 1){
-                    article = "articles";
-                }
-                if(window.confirm(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors}, en rajouter ${produit.nombre} ?`)){
-                    panier[i].nombre = sommeArticle; 
-                    savePanier(panier);
-                    return;  
-                } else {
+                 // // ----- sans limite a 100
+                // if (panier[i].nombre > 1){
+                // article = "articles";
+                // }
+                // if(window.confirm(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors}, en rajouter ${produit.nombre} ?`)){
+                //     panier[i].nombre = sommeArticle; 
+                //     savePanier(panier);
+                //     return;  
+                // } else {
+                //     return;
+                // }
+                // // ----- fin limite a 100
+                
+                // ---------- avec limite a 100
+                if(sommeArticle > 100){
+                    redShadow();
+                    setTimeout(function(){window.alert(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors},il doit être inférieur à 100`)}, 50);
                     return;
+                } else {
+                    if (panier[i].nombre > 1){
+                    article = "articles";
+                    }
+                    if(window.confirm(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors}, en rajouter ${produit.nombre} ?`)){
+                        panier[i].nombre = sommeArticle; 
+                        savePanier(panier);
+                        return;  
+                    } else {
+                        return;
+                    }
                 }
+                // ----fin limite
             }  
         }
         // ajout produit
@@ -164,14 +170,8 @@ function addPanier(produit) {
  * tri panier par _id
  * @param {*} panier 
  */
-function triTableau(panier) {
-    panier.sort(function(a, b){
-        a = a._id;
-        b = b._id;
-        if (a < b) { return -1; }
-        if (a > b) { return 1; }
-        if (a === b) { return a.colors - b.colors; }
-    })
+ function triTableau(panier) {
+    panier.sort((a, b) => (a._id > b._id) ? 1 : (a._id === b._id) ? ((a.colors > b.colors) ? 1 : -1) : -1 )
     savePanier(panier);
 }
 

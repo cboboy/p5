@@ -1,12 +1,18 @@
 const url = "http://localhost:3000/api/products/";
 
+/**
+ * permet l’échange de données avec le serveur de manière asynchrone.
+ */
 fetch(url)
+// si ok, il faut indiquer le format de réponse souhaité. Ici, on choisit JSON avec resultat.json().
   .then((resultat) => {
     if (resultat.ok) {
       return resultat.json();
     }
   })
+  // resultat.json() renvoie également une promesse contenant la réponse à votre demande en JSON
   .then((data) => displayProduct(data))
+  // on traite les erreurs avec le bloc catch
   .catch((error) => {
     alert(`Une erreur est survenue,  + ${error} \nServeur demarré ? - port 3000 ?`);
   }
@@ -18,6 +24,7 @@ fetch(url)
  */
 function displayProduct(products) {
   for (let i = 0; i < products.length; i++) {
+    // // version innerHTML
     // let a = document.createElement("a");
     // a.setAttribute("href", `./product.html?id=${products[i]._id}`);
     //     a.innerHTML = `
@@ -28,6 +35,7 @@ function displayProduct(products) {
     // </article>
     // `;
     // document.querySelector("#items").appendChild(a);
+    // // fin version innerHTML
 
     // declare et initialise les variables pour les elements
     let a = document.createElement("a");

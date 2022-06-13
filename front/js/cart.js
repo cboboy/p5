@@ -115,17 +115,33 @@ function displayProduct(products){
         for (let i = 0; i < qte.length; i++) {
             qte[i].addEventListener("change", () => {
                 let valeur = qte[i].value;
-                // if(valeur >= 1 && valeur <= 100) {
-                if(valeur >= 1) {
+                // // ----------- si pas de limite 100
+                // if(valeur >= 1) {
+                //     panier[i].nombre = qte[i].value;
+                //     qte[i].style.backgroundColor = "#a8fbbd";
+                //     savePanier(panier);
+                //     totalArticle();
+                // } else { 
+                //     qte[i].style.backgroundColor = "rgb(242, 143, 143)";
+                //     setTimeout(function(){
+                //         qte[i].value = panier[i].nombre; 
+                //     }, 1000);
+                //     setTimeout(function(){window.alert('Quantité doit être supérieure à 1')}, 50);
+                //     // fin pas de limite
+                
+                // ---------------si limite 100
+                if(valeur >= 1 && valeur <= 100) {
                     panier[i].nombre = qte[i].value;
                     qte[i].style.backgroundColor = "#a8fbbd";
                     savePanier(panier);
                     totalArticle();
-                } else {
+                } else { 
                     qte[i].style.backgroundColor = "rgb(242, 143, 143)";
                     setTimeout(function(){
                         qte[i].value = panier[i].nombre; 
                     }, 1000);
+                    setTimeout(function(){window.alert('Quantité doit être entre 1 et 100 articles')}, 50);
+                    // fin limite 100
                 }
                 setTimeout(setTim,1000,qte[i]); 
             }, false);
@@ -207,7 +223,7 @@ function savePanier(panier) {
 }
 
 /**
- * debut FONCTION total prix produits
+ * debut FONCTION affichage total quantité et prix produits
  */
 let = value_totalQuantity = 0;
 let = value_totalPrix = 0
@@ -221,7 +237,7 @@ function totalArticle() {
 }
 
 /**
- * debut FONCTION total prix produits
+ * debut FONCTION calcul total prix produits
  */
 function totalPrixProduits() {
     let panier = getPanier();
@@ -232,7 +248,7 @@ function totalPrixProduits() {
 };
 
 /**
- * debut FONCTION total quantite produits
+ * debut FONCTION calcul total quantite de tout les produits
  */
 function totalProduits() {
     let carts = document.querySelectorAll(".itemQuantity");
