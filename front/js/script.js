@@ -19,7 +19,7 @@ fetch(url)
 );
 
 /**
- * modification du Dom et integration des produits
+ * modification du Dom-(pour modèle objet de document) et integration des produits
  * @param {*} products 
  */
 function displayProduct(products) {

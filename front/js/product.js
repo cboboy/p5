@@ -57,8 +57,9 @@ eventColor.addEventListener("change", () => {
 
 // -------------------------- addEventListener sur le bouton "Ajouter au panier"
 const commande = document.getElementById("addToCart");
-commande.addEventListener('click', event => {
-    let borderS = document.querySelector(".item__content__addButton button");
+commande.addEventListener('click', (e) => {
+    // desactive le comportement du bouton
+    e.preventDefault(); 
     let liste, value, couleur, quantite;
     liste = document.getElementById("colors");
     value = liste.options[liste.selectedIndex].value;
@@ -126,6 +127,9 @@ function addPanier(produit) {
             if (panier[i]._id == produit._id && panier[i].colors == produit.colors) {
                 let article = "article";
                 let sommeArticle = Number(panier[i].nombre)+ Number(produit.nombre);
+                if (panier[i].nombre > 1){
+                    article = "articles";
+                    }
                  // // ----- sans limite a 100
                 // if (panier[i].nombre > 1){
                 // article = "articles";
@@ -142,12 +146,9 @@ function addPanier(produit) {
                 // ---------- avec limite a 100
                 if(sommeArticle > 100){
                     redShadow();
-                    setTimeout(function(){window.alert(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors},il doit être inférieur à 100`)}, 50);
+                    setTimeout(function(){window.alert(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors}, il doit être inférieur à 100`)}, 50);
                     return;
                 } else {
-                    if (panier[i].nombre > 1){
-                    article = "articles";
-                    }
                     if(window.confirm(`Le panier contient déja ${panier[i].nombre} ${article} de couleur ${panier[i].colors}, en rajouter ${produit.nombre} ?`)){
                         panier[i].nombre = sommeArticle; 
                         savePanier(panier);
@@ -176,12 +177,12 @@ function addPanier(produit) {
 }
 
 // hover shadow bleu sur bp
-commande.addEventListener('mouseenter' , mouseenter => {
+commande.addEventListener('mouseenter' , () => {
     blueShadow()
 });
 
 // no hover shadow sur bp
-commande.addEventListener('mouseleave' , mouseleave => {
+commande.addEventListener('mouseleave' , () => {
     noShadow()
 });
 
