@@ -65,7 +65,7 @@ commande.addEventListener('click', (e) => {
     value = liste.options[liste.selectedIndex].value;
     couleur = liste.options[liste.selectedIndex].text;
     quantite = document.getElementById("quantity").value;
-    // alerte si pas de couleur ( settimeout pour chrome)
+    // alerte si pas de couleur ( setTimeout pour chrome)
     if (value != "valeur") {
         redShadow();
         setTimeout(function(){window.alert("choisir une couleur")}, 50);
@@ -78,7 +78,7 @@ commande.addEventListener('click', (e) => {
                 // ajout panier
                 greenShadow();
                 let ajoutPanier = {_id : id, colors : couleur, nombre : quantite};
-                addPanier(ajoutPanier);
+                setTimeout(function(){addPanier(ajoutPanier)}, 50);
             }
     }
 });
@@ -100,7 +100,7 @@ function getPanier() {
     // enregistre dans une variable le panier
     let panier = localStorage.getItem("panier");
     // verifie que le tableau existe
-    // si il n'existe pas,  sinon on ajoute les elements
+    // si il n'existe pas
     if(panier == null) {
         // on retourne un tableau vide,
         return [];
